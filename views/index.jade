@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	h1= title
+	label(for='name') Add a node
+	input(type='text' name='name' id='name') 
+	span to
+	select(name='parent' id='parent')
+		option(name='root' id='root') root
+	input(type='submit' id='submitNode')
+	button(id='update') update
+	button(id='genocide') Reset root
