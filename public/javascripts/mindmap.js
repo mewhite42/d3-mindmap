@@ -1,103 +1,75 @@
-var Cell = function Cell(options) {
-	this.parent = options.parent;
-	this.name = options.name;
-	this.children = options.children || [];
-	this.size = options.size;
-	
-	this.addChild = function(node) {
-		node.parent = this;
-		this.children.push(node);
-	};
+var Mindmap = (function () {
+	var mindmap = function(options) {
+		var margin = {
+				top : options.top || 20,
+				right : options.right || 120,
+				bottom : options.bottom || 20,
+				left : options.left || 20
+			},
+			height = options.height || (800 - margin.right - margin.left),
+			width = options.width || (960 - margin.top - margin.bottom),
+			tree = d3.layout.tree().size([height, width]),
+			root = options.data || {"name" : "root", "children" : []},
+			duration = 750,
+			id = 0;
 
-	this.removeChild = function(node) {
-		for (var i = 0; i < this.children.length; i++) {
-			if (this.children[i].name === node.name) {
-				this.children.splice(i, 1);
-				break;
+
+		var diagonal = d3.svg.diagonal()
+			.projection(function(d) { return [d.y, d.x]; });
+
+		var svg = d3.select("body").append("svg")
+		    .attr("width", width + margin.right + margin.left)
+		    .attr("height", height + margin.top + margin.bottom)
+		    .append("g")
+		    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		// Root positioning center left
+		root.x0 = height / 2;
+		root.y0 = 180;
+
+		function collapse(d) {
+			if (d.children) {
+				d._children = d.children;
+				d._children.forEach(collapse);
+				d.children = null;
 			}
 		}
+
+		root.children.forEach(collapse);
+
+		// Compute the new layout
+		var	nodes = tree.nodes(root).reverse(),
+			links = tree.links(nodes);
+
+		// Add the nodes
+		var node = svg.selectAll("g.nodes")
+			.data(nodes, function(d) {
+				return d.id || (d.id = id++); 
+			});
 	};
 
-	this.drop = function() {
-		if (this.parent) {
-			var indexOfChild = this.parent.children.indexOf(this);
-			this.parent.slice(indexOfChild, 1);
+	mindmap.prototype = {
+		addNode : function(parent, name) {
+		},
+		removeNode : function(node) {
+		},
+		getNode : function(idNode) {
+			return d3.select('#'+idNode);
+		},
+		click : function(d) {
+
 		}
 	};
 
-	this.getPath = function() {
-		var path = [],
-			parent = this.parent;
-
-		while (parent) {
-			path.push(parent);
-			parent = parent.parent;
-		}
-
-		return path;
-	};
-};
-
-function getNodeByName(node, name) {
-	if (node.name === name) {
-		return node;
-	}
-	else {
-		if (node.children) {
-			for (var i = 0; i < node.children.length; i++) {
-				var result = getNodeByName(node.children[i], name);
-
-				if (result) {
-					return result;
-				}
-			}
-		}
-	}
-}
-
-var CellControler = function CellControler() {
-	this.addNode = function(parent, name) {
-		var node = new Cell({name : name});
-
-		if (typeof(parent) === 'string') {
-			parent = this.getNode(root, node);
-		}
-
-		if (parent instanceof Cell) {
-			parent.addChild(node);
-		}
-
-		d3.select('select#parent').append('option').text(node.name).attr('id', node.name);
-	};
-
-	this.removeNode = function(node) {
-		node.drop();
-	};
-
-	this.getNode = function(node, name) {
-		return getNodeByName(node, name);
-	};
-};
+	return mindmap;
+})();
 
 //
 //
 // Main
 //
 //
-var root = new Cell({
-	name : 'root',
-	children : [
-      new Cell({"parent" : root, "name": "Child 1", "size": 1983}),
-      new Cell({"parent" : root, "name": "Child 2", "size": 2047}),
-      new Cell({"parent" : root, "name": "Child 3", "size": 2}),
-  ]
-});
-
-root.children.forEach(function(child) {
-	d3.select('select#parent').append('option').text(child.name).attr('id', child.name);
-});
-
-var controler = new CellControler();
+var mindmap = new Mindmap({});
 
 function getData() {
 	return root;
@@ -107,7 +79,7 @@ d3.select('#submitNode').on('click', function() {
 	var name = document.getElementById('name').value,
 		parent = document.getElementById('parent').value;
 
-	controler.addNode(parent, name);
+	mindmap.addNode(parent, name);
 	update(root);
 });
 
