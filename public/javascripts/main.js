@@ -1,4 +1,9 @@
-var data = getData();
+var data = { 'name' : 'root',
+              'children' : [
+                  {'name' : 'child 1', 'children' : []},
+                  {'name' : 'child 2', 'children' : []}
+                  ]
+             };
 
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
     width = 960 - margin.right - margin.left,

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Express your mind</title>
+</head>
+<body>
+  <section id="mindmap">
+  </section>
+  <script type="text/javascript" src="/javascripts/lib/d3.js"></script>
+  <script type="text/javascript" src="/javascripts/mindmap.js"></script>
+  <script type="text/javascript">
+  var options = {
+    position : "#mindmap",
+    width : 500,
+    height : 500,
+    top : 20,
+    left : 20
+  }
+
+  var data = {
+    name : "Mindmap", 
+    children: []
+  }
+
+  for (var i = 0; i < 3; i++) {
+    data.children.push({name : 'node'+i, children : []});
+  }
+
+  var mindmap = new Mindmap(options);
+
+  mindmap.update(data);
+  </script>
+</body>
+</html>
